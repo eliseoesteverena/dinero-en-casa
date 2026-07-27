@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dinero en Casa</title>
+
+  <!-- Iconos y Manifest -->
+  <link rel="icon" type="image/png" href="/favicon/favicon-96x96.png" sizes="96x96" />
+  <link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg" />
+  <link rel="shortcut icon" href="/favicon/favicon.ico" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png" />
+  <meta name="apple-mobile-web-app-title" content="Dinero En Casa" />
+  <link rel="manifest" href="/favicon/site.webmanifest" />
+
+  <!-- Google Fonts: Geist -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg: #fdfdfd;
+      --text: #1a1a1a;
+      --text-muted: #666666;
+      --border: #e5e5e5;
+      --surface: #ffffff;
+      --accent: #000000;
+      --accent-hover: #333333;
+      --danger: #d93025;
+      --radius: 12px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body {
+      /* Incorporación de la fuente Geist como principal */
+      font-family: 'Geist', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      padding: 1rem 1rem 6rem 1rem;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+
+    /* Header y Menú */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 0;
+    }
+
+    h1 { font-size: 1.5rem; font-weight: 600; letter-spacing: -0.5px; }
+    h2 { font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem;}
+
+    .menu-container { position: relative; }
+    .icon-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--text);
+      padding: 0.5rem;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+    }
+    .icon-btn:hover { background: #f0f0f0; }
+    
+    .dropdown {
+      position: absolute;
+      right: 0;
+      top: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      min-width: 150px;
+      display: none;
+      z-index: 10;
+    }
+    .dropdown.show { display: block; }
+    .dropdown button {
+      width: 100%;
+      text-align: left;
+      background: none;
+      border: none;
+      padding: 0.75rem 1rem;
+      cursor: pointer;
+      color: var(--danger);
+      font-size: 0.9rem;
+      font-family: inherit;
+    }
+    .dropdown button:hover { background: #fff5f5; }
+
+    /* Layout Principal */
+    .section { background: transparent; }
+
+    /* Listas */
+    .item-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .item-row:last-child { border-bottom: none; }
+    .item-title { font-weight: 500; font-size: 1rem; }
+    .item-subtitle { font-size: 0.85rem; color: var(--text-muted); margin-top: 0.2rem; }
+    .item-amount { font-weight: 500; text-align: right; }
+    
+    .actions { display: flex; gap: 0.5rem; margin-top: 0.5rem; }
+    .btn-text { background: none; border: none; font-size: 0.8rem; font-weight: 500; cursor: pointer; color: var(--text-muted); padding: 0; text-transform: uppercase; letter-spacing: 0.5px; font-family: inherit; }
+    .btn-text:hover { color: var(--accent); }
+
+    /* Elemento Details (Proyección Mensual) */
+    details.mes-card {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      margin-bottom: 0.75rem;
+      background: var(--surface);
+      overflow: hidden;
+    }
+    details.mes-pesado {
+      border-left: 4px solid var(--accent);
+    }
+    
+    summary.mes-header {
+      padding: 1rem;
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      font-weight: 500;
+      user-select: none;
+      list-style: none; /* Oculta la flecha nativa por defecto */
+    }
+    /* Oculta la flecha nativa en Safari/Chrome antiguos */
+    summary.mes-header::-webkit-details-marker {
+      display: none;
+    }
+    summary.mes-header:hover {
+      background: #fafafa;
+    }
+
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-grow: 1;
+      margin-right: 1rem;
+    }
+
+    /* Marcador visual customizado */
+    .chevron-icon {
+      transition: transform 0.3s ease;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+    }
+    
+    /* Cuando details está abierto, rota la flecha 180 grados */
+    details[open] .chevron-icon {
+      transform: rotate(180deg);
+    }
+
+    .mes-body {
+      padding: 0 1rem 1rem 1rem;
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-5px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .detalle-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.5rem 0;
+      font-size: 0.9rem;
+      border-top: 1px solid var(--border);
+    }
+    .detalle-item:first-child { border-top: none; }
+
+    /* FAB (Botón Flotante) */
+    .fab {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      width: 56px;
+      height: 56px;
+      background-color: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      cursor: pointer;
+      z-index: 100;
+      transition: transform 0.2s, background 0.2s;
+    }
+    .fab:hover { transform: scale(1.05); background-color: var(--accent-hover); }
+    .fab:active { transform: scale(0.95); }
+
+    /* Modal (Formulario) */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.4);
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+      z-index: 200;
+    }
+    .modal-overlay.active { opacity: 1; pointer-events: auto; }
+    
+    .modal-content {
+      background: var(--surface);
+      width: 100%;
+      max-width: 600px;
+      border-radius: 20px 20px 0 0;
+      padding: 1.5rem;
+      transform: translateY(100%);
+      transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1);
+    }
+    .modal-overlay.active .modal-content { transform: translateY(0); }
+    
+    @media (min-width: 600px) {
+      .modal-overlay { align-items: center; }
+      .modal-content { border-radius: var(--radius); transform: translateY(20px); }
+      .modal-overlay.active .modal-content { transform: translateY(0); }
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+    
+    .form-group { margin-bottom: 1rem; }
+    label { display: block; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.4rem; text-transform: uppercase; letter-spacing: 0.5px;}
+    input {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 1rem;
+      background: #fafafa;
+    }
+    input:focus { outline: none; border-color: var(--accent); background: white; }
+    
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    
+    .btn-submit {
+      background-color: var(--accent);
+      color: white;
+      border: none;
+      padding: 0.8rem;
+      border-radius: 8px;
+      width: 100%;
+      font-size: 1rem;
+      font-weight: 500;
+      font-family: inherit;
+      margin-top: 1rem;
+      cursor: pointer;
+    }
+    
+    .empty-state { color: var(--text-muted); font-size: 0.9rem; font-style: italic; }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <h1>Dinero en Casa</h1>
+      <div class="menu-container">
+        <button class="icon-btn" onclick="toggleMenu(event)" aria-label="Menú">
+          <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="1"></circle>
+            <circle cx="12" cy="5" r="1"></circle>
+            <circle cx="12" cy="19" r="1"></circle>
+          </svg>
+        </button>
+        <div class="dropdown" id="dropdownMenu">
+          <button onclick="limpiarDatos()">Borrar Todos los Datos</button>
+        </div>
+      </div>
+    </header>
+
+    <div class="section">
+      <h2>Proyección Mensual</h2>
+      <div id="proyeccion-container"></div>
+    </div>
+
+    <div class="section">
+      <h2>Cuotas Activas</h2>
+      <div id="lista-container"></div>
+    </div>
+  </div>
+
+  <!-- FAB -->
+  <button class="fab" onclick="abrirModal()" aria-label="Agregar">
+    <svg viewBox="0 0 24 24" width="28" height="28" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="12" y1="5" x2="12" y2="19"></line>
+      <line x1="5" y1="12" x2="19" y2="12"></line>
+    </svg>
+  </button>
+
+  <!-- Modal Formulario -->
+  <div class="modal-overlay" id="modalOverlay" onclick="cerrarModal(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <h2 style="margin:0; border:none; padding:0;" id="form-title">Nueva Cuota</h2>
+        <button class="icon-btn" onclick="cerrarModal()">
+          <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+      
+      <form id="cuotaForm">
+        <input type="hidden" id="cuotaId">
+        <div class="form-group">
+          <label>Nombre del Crédito</label>
+          <input type="text" id="nombre" placeholder="Ej: Tarjeta Naranja" required autocomplete="off">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Monto ($)</label>
+            <input type="number" id="monto" step="0.01" required>
+          </div>
+          <div class="form-group">
+            <label>Restantes</label>
+            <input type="number" id="restantes" min="1" required>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Día Venc.</label>
+            <input type="number" id="dia" min="1" max="31" placeholder="Ej: 15">
+          </div>
+          <div class="form-group">
+            <label>1ra Cuota (Opcional)</label>
+            <input type="date" id="fecha">
+          </div>
+        </div>
+        <button type="submit" class="btn-submit" id="btn-submit">Guardar</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // Utilidades y Estado
+    const formatearMoneda = (monto) => new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 }).format(monto);
+    let cuotas = JSON.parse(localStorage.getItem('cuotas')) || [];
+    
+    const form = document.getElementById('cuotaForm');
+    const modalOverlay = document.getElementById('modalOverlay');
+    const dropdownMenu = document.getElementById('dropdownMenu');
+
+    // UI: Modal y Menú
+    function abrirModal() {
+      modalOverlay.classList.add('active');
+      document.getElementById('nombre').focus();
+    }
+    
+    function cerrarModal(e) {
+      if (e && e.target !== modalOverlay && e.target.tagName !== 'BUTTON' && e.target.tagName !== 'svg' && e.target.tagName !== 'line') return;
+      modalOverlay.classList.remove('active');
+      setTimeout(resetForm, 300); // Esperar animación
+    }
+
+    function resetForm() {
+      form.reset();
+      document.getElementById('cuotaId').value = "";
+      document.getElementById('form-title').innerText = "Nueva Cuota";
+      document.getElementById('btn-submit').innerText = "Guardar";
+    }
+
+    function toggleMenu(e) {
+      e.stopPropagation();
+      dropdownMenu.classList.toggle('show');
+    }
+    
+    document.addEventListener('click', () => dropdownMenu.classList.remove('show'));
+
+    // Lógica CRUD
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const idInput = document.getElementById('cuotaId').value;
+      const nuevaCuota = {
+        id: idInput ? idInput : Date.now().toString(),
+        nombre: document.getElementById('nombre').value,
+        montoCuota: parseFloat(document.getElementById('monto').value),
+        cuotasRestantes: parseInt(document.getElementById('restantes').value),
+        diaVencimiento: parseInt(document.getElementById('dia').value) || 10,
+        fechaInicio: document.getElementById('fecha').value || null
+      };
+
+      if (idInput) cuotas = cuotas.map(c => c.id === idInput ? nuevaCuota : c);
+      else cuotas.push(nuevaCuota);
+
+      guardarYRenderizar();
+      cerrarModal();
+    });
+
+    function guardarYRenderizar() {
+      localStorage.setItem('cuotas', JSON.stringify(cuotas));
+      renderizarLista();
+      renderizarProyeccion();
+    }
+
+    function eliminarCuota(id) {
+      if(confirm('¿Eliminar registro?')) {
+        cuotas = cuotas.filter(c => c.id !== id);
+        guardarYRenderizar();
+      }
+    }
+
+    function editarCuota(id) {
+      const cuota = cuotas.find(c => c.id === id);
+      if (!cuota) return;
+
+      document.getElementById('cuotaId').value = cuota.id;
+      document.getElementById('nombre').value = cuota.nombre;
+      document.getElementById('monto').value = cuota.montoCuota;
+      document.getElementById('restantes').value = cuota.cuotasRestantes;
+      document.getElementById('dia').value = cuota.diaVencimiento;
+      if (cuota.fechaInicio) document.getElementById('fecha').value = cuota.fechaInicio;
+
+      document.getElementById('form-title').innerText = "Editar Cuota";
+      document.getElementById('btn-submit').innerText = "Actualizar";
+      abrirModal();
+    }
+
+    function limpiarDatos() {
+      if(confirm('Se eliminarán todos los datos. ¿Continuar?')) {
+        cuotas = [];
+        guardarYRenderizar();
+      }
+    }
+
+    // Renderizado
+    function renderizarLista() {
+      const container = document.getElementById('lista-container');
+      if (cuotas.length === 0) {
+        container.innerHTML = '<p class="empty-state">No hay cuotas registradas.</p>';
+        return;
+      }
+
+      container.innerHTML = cuotas.map(c => `
+        <div class="item-row">
+          <div>
+            <div class="item-title">${c.nombre}</div>
+            <div class="item-subtitle">${c.cuotasRestantes} pagos de ${formatearMoneda(c.montoCuota)}</div>
+            <div class="actions">
+              <button class="btn-text" onclick="editarCuota('${c.id}')">Editar</button>
+              <button class="btn-text" style="color:var(--danger)" onclick="eliminarCuota('${c.id}')">Eliminar</button>
+            </div>
+          </div>
+          <div class="item-amount">${formatearMoneda(c.montoCuota * c.cuotasRestantes)}<br><span class="item-subtitle" style="font-size:0.75rem; font-weight:normal;">Total</span></div>
+        </div>
+      `).join('');
+    }
+
+    function calcularProyecciones() {
+      const proyecciones = {}; 
+      let maxMontoMes = 0;
+      const ahora = new Date();
+      const mesActual = ahora.getMonth();
+      const añoActual = ahora.getFullYear();
+
+      cuotas.forEach(cuota => {
+        let mesInicio, añoInicio;
+        if (cuota.fechaInicio) {
+          const d = new Date(cuota.fechaInicio + 'T00:00:00');
+          mesInicio = d.getMonth();
+          añoInicio = d.getFullYear();
+        } else {
+          mesInicio = ahora.getDate() > cuota.diaVencimiento ? mesActual + 1 : mesActual;
+          añoInicio = añoActual;
+        }
+
+        for (let i = 0; i < cuota.cuotasRestantes; i++) {
+          let m = mesInicio + i;
+          let y = añoInicio + Math.floor(m / 12);
+          m = m % 12;
+
+          const key = `${y}-${m.toString().padStart(2, '0')}`;
+          
+          if (!proyecciones[key]) proyecciones[key] = { total: 0, items: [], fecha: new Date(y, m, 1) };
+
+          proyecciones[key].total += cuota.montoCuota;
+          proyecciones[key].items.push({ nombre: cuota.nombre, monto: cuota.montoCuota, numCuota: i + 1, totalCuotas: cuota.cuotasRestantes });
+
+          if (proyecciones[key].total > maxMontoMes) maxMontoMes = proyecciones[key].total;
+        }
+      });
+
+      return {
+        meses: Object.keys(proyecciones).sort().map(k => ({
+          ...proyecciones[k], esMax: (proyecciones[k].total === maxMontoMes && maxMontoMes > 0)
+        })),
+        maxMontoMes
+      };
+    }
+
+    function renderizarProyeccion() {
+      const container = document.getElementById('proyeccion-container');
+      const data = calcularProyecciones();
+      
+      if (data.meses.length === 0) {
+        container.innerHTML = '<p class="empty-state">No hay proyecciones futuras.</p>';
+        return;
+      }
+
+      const fmtMes = new Intl.DateTimeFormat('es-AR', { month: 'long', year: 'numeric' });
+      
+      // Se utiliza <details> y <summary> para un acordeón nativo más limpio
+      container.innerHTML = data.meses.map(mes => `
+        <details class="mes-card ${mes.esMax ? 'mes-pesado' : ''}">
+          <summary class="mes-header">
+            <div class="header-content">
+              <div>
+                <span style="text-transform: capitalize;">${fmtMes.format(mes.fecha)}</span>
+                ${mes.esMax ? '<span style="font-size: 0.75rem; margin-left: 8px; color: var(--text-muted); font-weight: normal;">(Mes Pico)</span>' : ''}
+              </div>
+              <span>${formatearMoneda(mes.total)}</span>
+            </div>
+            <div class="chevron-icon">
+              <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </div>
+          </summary>
+          <div class="mes-body">
+            ${mes.items.map(item => `
+              <div class="detalle-item">
+                <div style="color: var(--text-muted);">${item.nombre} <span style="font-size:0.75rem">(${item.numCuota}/${item.totalCuotas})</span></div>
+                <div>${formatearMoneda(item.monto)}</div>
+              </div>
+            `).join('')}
+          </div>
+        </details>
+      `).join('');
+    }
+
+    // Inicializar app
+    renderizarLista();
+    renderizarProyeccion();
+    
+    function cargarMisCuotas() {
+  const fechaArranque = "2026-07-31";
+  
+  const misDatos = [
+    // Tarjeta Naranja
+    { id: "tn-1", nombre: "Naranja - TodoModa", montoCuota: 90400, cuotasRestantes: 1, diaVencimiento: 31, fechaInicio: fechaArranque },
+    { id: "tn-2", nombre: "Naranja - Teteros y chupetes", montoCuota: 44718, cuotasRestantes: 1, diaVencimiento: 31, fechaInicio: fechaArranque },
+    { id: "tn-3", nombre: "Naranja - Tetero", montoCuota: 9900, cuotasRestantes: 1, diaVencimiento: 31, fechaInicio: fechaArranque },
+    { id: "tn-4", nombre: "Naranja - NicArgentina", montoCuota: 8500, cuotasRestantes: 1, diaVencimiento: 31, fechaInicio: fechaArranque },
+    { id: "tn-5", nombre: "Naranja - Perchero", montoCuota: 36582, cuotasRestantes: 1, diaVencimiento: 31, fechaInicio: fechaArranque },
+    { id: "tn-6", nombre: "Naranja - Alacena", montoCuota: 84168, cuotasRestantes: 1, diaVencimiento: 31, fechaInicio: fechaArranque },
+    { id: "tn-7", nombre: "Naranja - Supermercado", montoCuota: 9000, cuotasRestantes: 4, diaVencimiento: 31, fechaInicio: fechaArranque },
+    
+    // Brubank
+    { id: "bru-1", nombre: "Brubank - Prestamo", montoCuota: 89634, cuotasRestantes: 12, diaVencimiento: 31, fechaInicio: fechaArranque },
+    
+    // Mercado Pago
+    { id: "mp-1", nombre: "MP - Cama", montoCuota: 56626, cuotasRestantes: 3, diaVencimiento: 31, fechaInicio: fechaArranque },
+    { id: "mp-2", nombre: "MP - Alacena", montoCuota: 18676, cuotasRestantes: 6, diaVencimiento: 31, fechaInicio: fechaArranque },
+    
+    // Préstamos Familia/Amigos (Se restan las cuotas ya pagadas al total)
+    { id: "fam-1", nombre: "María - Préstamo", montoCuota: 22934, cuotasRestantes: 3, diaVencimiento: 31, fechaInicio: fechaArranque },  // (9 totales - 6 pagas)
+    { id: "fam-2", nombre: "Franco - Cajonera", montoCuota: 4084, cuotasRestantes: 15, diaVencimiento: 31, fechaInicio: fechaArranque }, // (18 totales - 3 pagas)
+    { id: "fam-3", nombre: "Marwill - Cuna", montoCuota: 38999, cuotasRestantes: 3, diaVencimiento: 31, fechaInicio: fechaArranque },   // (6 totales - 3 pagas)
+    { id: "fam-4", nombre: "Alfonso - Cuna", montoCuota: 24925, cuotasRestantes: 6, diaVencimiento: 31, fechaInicio: fechaArranque }    // (12 totales - 6 pagas)
+  ];
+
+  // Sobrescribe el almacenamiento local con estos datos
+  localStorage.setItem('cuotas', JSON.stringify(misDatos));
+  
+  console.log("¡Datos inyectados correctamente! Refrescando la página...");
+  
+  // Recarga la página para que la app lea los datos nuevos
+  window.location.reload();
+}
+
+// Ejecutar la función
+cargarMisCuotas();
+
+  </script>
+</body>
+</html>
