@@ -566,7 +566,45 @@
     renderizarLista();
     renderizarProyeccion();
     
+    function cargarMisCuotas() {
+  const fechaArranque = "2026-08-01";
+  
+  const misDatos = [
+    // Tarjeta Naranja
+    { id: "tn-1", nombre: "Naranja - TodoModa", montoCuota: 90400, cuotasRestantes: 1, diaVencimiento: 31, fechaInicio: fechaArranque },
+    { id: "tn-2", nombre: "Naranja - Teteros y chupetes", montoCuota: 44718, cuotasRestantes: 1, diaVencimiento: 31, fechaInicio: fechaArranque },
+    { id: "tn-3", nombre: "Naranja - Tetero", montoCuota: 9900, cuotasRestantes: 1, diaVencimiento: 31, fechaInicio: fechaArranque },
+    { id: "tn-4", nombre: "Naranja - NicArgentina", montoCuota: 8500, cuotasRestantes: 1, diaVencimiento: 31, fechaInicio: fechaArranque },
+    { id: "tn-5", nombre: "Naranja - Perchero", montoCuota: 36582, cuotasRestantes: 1, diaVencimiento: 31, fechaInicio: fechaArranque },
+    { id: "tn-6", nombre: "Naranja - Alacena", montoCuota: 84168, cuotasRestantes: 1, diaVencimiento: 31, fechaInicio: fechaArranque },
+    { id: "tn-7", nombre: "Naranja - Supermercado", montoCuota: 9000, cuotasRestantes: 4, diaVencimiento: 31, fechaInicio: fechaArranque },
     
+    // Brubank
+    { id: "bru-1", nombre: "Brubank - Prestamo", montoCuota: 89634, cuotasRestantes: 12, diaVencimiento: 31, fechaInicio: fechaArranque },
+    
+    // Mercado Pago
+    { id: "mp-1", nombre: "MP - Cama", montoCuota: 56626, cuotasRestantes: 3, diaVencimiento: 31, fechaInicio: fechaArranque },
+    { id: "mp-2", nombre: "MP - Alacena", montoCuota: 18676, cuotasRestantes: 6, diaVencimiento: 31, fechaInicio: fechaArranque },
+    
+    // Préstamos Familia/Amigos (Se restan las cuotas ya pagadas al total)
+    { id: "fam-1", nombre: "María - Préstamo", montoCuota: 22934, cuotasRestantes: 3, diaVencimiento: 31, fechaInicio: fechaArranque },  // (9 totales - 6 pagas)
+    { id: "fam-2", nombre: "Franco - Cajonera", montoCuota: 4084, cuotasRestantes: 15, diaVencimiento: 31, fechaInicio: fechaArranque }, // (18 totales - 3 pagas)
+    { id: "fam-3", nombre: "Marwill - Cuna", montoCuota: 38999, cuotasRestantes: 3, diaVencimiento: 31, fechaInicio: fechaArranque },   // (6 totales - 3 pagas)
+    { id: "fam-4", nombre: "Alfonso - Cuna", montoCuota: 24925, cuotasRestantes: 6, diaVencimiento: 31, fechaInicio: fechaArranque }    // (12 totales - 6 pagas)
+  ];
+
+  // Sobrescribe el almacenamiento local con estos datos
+  localStorage.setItem('cuotas', JSON.stringify(misDatos));
+  
+  console.log("¡Datos inyectados correctamente! Refrescando la página...");
+  
+  // Recarga la página para que la app lea los datos nuevos
+  window.location.reload();
+}
+
+// Ejecutar la función
+cargarMisCuotas();
+
   </script>
 </body>
 </html>
